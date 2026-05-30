@@ -26,8 +26,8 @@ ENV_PATH = BASE_DIR / ".env"
 SCRIPT_PATH = _BUNDLE_DIR / "sde_downloader.py"
 
 # Current app version — keep in sync with GitHub release tags (e.g. "v1.2.0")
-APP_VERSION = "v1.0.0"
-GITHUB_REPO = "luackci/sde-vault"  # e.g. "yourusername/sde-vault" — fill in before publishing
+APP_VERSION = "v1.0.1"
+GITHUB_REPO = "Luckci/sde-vault"
 
 jobs = {}
 jobs_lock = threading.Lock()
