@@ -1,0 +1,199 @@
+{
+  "main": {
+    "id": "254be5100f2ac70b",
+    "type": "split",
+    "children": [
+      {
+        "id": "9b2f9fd918c207f7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7dc7cafcdf2fae59",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "vault/Fysik_A/📋 Eksamensforberedelse.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "📋 Eksamensforberedelse"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "31acd1e9659d41b1",
+    "type": "split",
+    "children": [
+      {
+        "id": "bd3f39272427520a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "40a7aedb17b03b9e",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "cd01a3ac599e647e",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "3209f4b29afe9e97",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "98b7551daaf13714",
+    "type": "split",
+    "children": [
+      {
+        "id": "ce449b64856b5c16",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a0ca65d252962a75",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "99fa6619778c1fda",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "7432ae015cb26450",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "258aff26d971f93c",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "2528e87be1f44258",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "7dc7cafcdf2fae59",
+  "lastOpenFiles": [
+    "sde_vault.spec.tmp.37672.850f210edbbf",
+    "build.sh",
+    "build.sh.tmp.37672.93868027b38c",
+    "build.bat",
+    "sde_vault.spec",
+    "templates/index.html.tmp.26972.c8f75e918894",
+    "app.py.tmp.26972.3fa09f332580",
+    "__pycache__/sde_downloader.cpython-314.pyc",
+    "sde_downloader.py.tmp.26972.a47e9df24c1a",
+    "sde_downloader.py.tmp.26972.2485f11c4018",
+    "sde_downloader.py.tmp.26972.615a690aa752",
+    "vault/Fysik_A/_Index.md",
+    "vault/Home.md"
+  ]
+}

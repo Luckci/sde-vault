@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDE Vault Downloader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    (function () {
+      var t = localStorage.getItem('sde-theme');
+      if (t !== 'dark') document.documentElement.classList.add('light');
+    })();
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:    #0d1117;
+      --bg-card:    #161b22;
+      --bg-input:   #0d1117;
+      --bg-sidebar: rgba(22,27,34,0.35);
+      --bg-header:  rgba(22,27,34,0.85);
+      --bg-icon-btn:#21262d;
+      --border:     #30363d;
+      --text:       #c9d1d9;
+      --text-muted: #8b949e;
+      --text-dim:   #484f58;
+      --text-strong:#ffffff;
+      --grid-color: rgba(56,139,253,0.03);
+      --overlay-bg: rgba(0,0,0,0.75);
+      --summary-bg: rgba(13,33,25,0.9);
+      --summary-border: rgba(35,134,54,0.4);
+      --cl-login:   #79c0ff;
+      --cl-success: #56d364;
+      --cl-error:   #ff7b72;
+      --cl-dl:      #39c5cf;
+      --cl-vault:   #56d364;
+      --cl-ai:      #d2a8ff;
+      --cl-header:  #e3b341;
+      --cl-dim:     #6e7681;
+      --cl-default: #c9d1d9;
+    }
+
+    html.light {
+      --bg-base:    #f6f8fa;
+      --bg-card:    #ffffff;
+      --bg-input:   #ffffff;
+      --bg-sidebar: rgba(255,255,255,0.55);
+      --bg-header:  rgba(246,248,250,0.92);
+      --bg-icon-btn:#f6f8fa;
+      --border:     #d0d7de;
+      --text:       #24292f;
+      --text-muted: #57606a;
+      --text-dim:   #8c959f;
+      --text-strong:#1f2328;
+      --grid-color: rgba(56,139,253,0.04);
+      --overlay-bg: rgba(0,0,0,0.5);
+      --summary-bg: rgba(31,136,61,0.08);
+      --summary-border: rgba(35,134,54,0.35);
+      --cl-login:   #0969da;
+      --cl-success: #1a7f37;
+      --cl-error:   #cf222e;
+      --cl-dl:      #0550ae;
+      --cl-vault:   #1a7f37;
+      --cl-ai:      #8250df;
+      --cl-header:  #9a6700;
+      --cl-dim:     #6e7681;
+      --cl-default: #24292f;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-base);
+      color: var(--text);
+      font-size: 14px;
+      transition: background 0.2s, color 0.2s;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background-image:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace; }
+    .label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .hint { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+    .sub  { font-size: 11px; color: var(--text-dim); }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text-strong);
+      font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    select { cursor: pointer; }
+    input:focus, select:focus {
+      border-color: #388bfd;
+      box-shadow: 0 0 0 3px rgba(56,139,253,0.15);
+    }
+    input:disabled, select:disabled { opacity: 0.4; cursor: not-allowed; }
+    input::placeholder { color: var(--text-dim); }
+
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+
+    .btn-primary {
+      width: 100%;
+      background: #238636;
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #2ea043; }
+    .btn-primary:active { background: #196c2e; }
+
+    .btn-danger {
+      width: 100%;
+      background: rgba(218,54,51,0.12);
+      border: 1px solid rgba(218,54,51,0.35);
+      color: #ff7b72;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 8px;
+      padding: 10px 16px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .btn-danger:hover { background: rgba(218,54,51,0.25); }
+
+    .btn-icon {
+      background: var(--bg-icon-btn);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.15s, border-color 0.15s, background 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-icon:hover { color: var(--text-strong); border-color: #388bfd; }
+
+    .btn-text {
+      background: none; border: none;
+      font-size: 13px;
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-muted);
+      transition: color 0.15s;
+    }
+    .btn-text:hover { color: var(--text-strong); }
+
+    .btn-small {
+      background: rgba(35,134,54,0.2);
+      border: 1px solid rgba(35,134,54,0.35);
+      color: #3fb950;
+      font-size: 12px; font-weight: 500;
+      border-radius: 8px; padding: 6px 12px;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-small:hover { background: rgba(35,134,54,0.35); }
+    html.light .btn-small { color: #1a7f37; }
+
+    .toggle-track {
+      width: 40px; height: 22px;
+      background: var(--border);
+      border-radius: 11px;
+      position: relative; cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .toggle-track.on { background: #388bfd; }
+    .toggle-thumb {
+      position: absolute; top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      background: #fff; border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle-track.on .toggle-thumb { transform: translateX(18px); }
+
+    .ll-login    { color: var(--cl-login); }
+    .ll-success  { color: var(--cl-success); }
+    .ll-error    { color: var(--cl-error); }
+    .ll-dl       { color: var(--cl-dl); }
+    .ll-vault    { color: var(--cl-vault); }
+    .ll-ai       { color: var(--cl-ai); }
+    .ll-header   { color: var(--cl-header); }
+    .ll-dim      { color: var(--cl-dim); }
+    .ll-default  { color: var(--cl-default); }
+
+    .log-box::-webkit-scrollbar       { width: 5px; }
+    .log-box::-webkit-scrollbar-track { background: transparent; }
+    .log-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    @keyframes phase-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(56,139,253,0.5); }
+      50%       { box-shadow: 0 0 0 6px rgba(56,139,253,0); }
+    }
+    .phase-pulsing { animation: phase-pulse 1.4s infinite; }
+    @keyframes spin    { to { transform: rotate(360deg); } }
+    .spinning { animation: spin 0.7s linear infinite; }
+    @keyframes fadeIn  { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeIn 0.25s ease forwards; }
+    @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .hidden { display: none !important; }
+
+    .ai-section-header { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+    .ai-section-line   { flex: 1; height: 1px; background: var(--border); }
+    .ai-section-label  {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: var(--cl-ai); white-space: nowrap;
+    }
+
+    /* ══ LAYOUT ══ */
+    #setup-overlay {
+      position: fixed; inset: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      background: var(--overlay-bg);
+      backdrop-filter: blur(4px);
+    }
+    .setup-card {
+      width: 100%; max-width: 460px;
+      padding: 32px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .setup-head { text-align: center; margin-bottom: 28px; }
+    .setup-head .emoji { font-size: 44px; display: block; margin-bottom: 10px; }
+    .setup-head h1 { font-size: 22px; font-weight: 700; color: var(--text-strong); }
+    .setup-head p  { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .setup-form    { display: flex; flex-direction: column; gap: 16px; }
+
+    .api-section-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--cl-ai);
+      margin-bottom: 4px; display: block;
+    }
+    .api-key-grid { display: flex; flex-direction: column; gap: 10px; }
+    .api-key-row  { display: flex; flex-direction: column; gap: 4px; }
+    .api-key-name { font-size: 12px; color: var(--text-muted); }
+    .api-key-badge {
+      font-size: 10px; padding: 1px 6px; border-radius: 10px;
+      font-weight: 600; margin-left: 6px;
+    }
+    .badge-set   { background: rgba(56,211,100,0.15); color: #56d364; }
+    .badge-unset { background: rgba(139,148,158,0.15); color: var(--text-dim); }
+    html.light .badge-set   { color: #1a7f37; }
+    html.light .badge-unset { color: var(--text-muted); }
+
+    #main-app { display: flex; flex-direction: column; height: 100vh; }
+
+    .app-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+      position: sticky; top: 0; z-index: 10;
+      flex-shrink: 0;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .header-left  { display: flex; align-items: center; gap: 10px; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .status-pill  { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+    .status-dot   { width: 7px; height: 7px; border-radius: 50%; background: #56d364; flex-shrink: 0; }
+
+    .app-body { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+
+    .sidebar {
+      width: 296px; flex-shrink: 0;
+      display: flex; flex-direction: column; gap: 16px;
+      padding: 20px;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      background: var(--bg-sidebar);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .sidebar-divider { border: none; border-top: 1px solid var(--border); }
+    .toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 8px;
+    }
+    .subject-row { display: flex; gap: 8px; }
+    .btn-group { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+
+    .output-panel {
+      flex: 1; display: flex; flex-direction: column; gap: 16px;
+      padding: 20px; overflow: hidden; min-width: 0;
+    }
+
+    .phase-stepper { display: flex; align-items: center; padding: 16px 20px; }
+    .phase-node {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      opacity: 0.35; transition: opacity 0.3s;
+      flex-shrink: 0; width: 52px;
+    }
+    .phase-node .phase-dot {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .phase-node .phase-label { font-size: 10px; color: var(--text-muted); white-space: nowrap; }
+    .phase-line {
+      flex: 1; height: 1px; background: var(--border);
+      margin: 0 4px; margin-bottom: 17px;
+      transition: background 0.3s; min-width: 12px;
+    }
+
+    .log-card { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 200px; }
+    .log-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .log-box {
+      flex: 1; overflow-y: auto; padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; line-height: 1.6; min-height: 0;
+    }
+    .log-row { display: flex; gap: 10px; }
+    .log-ts  { color: var(--text-dim); flex-shrink: 0; }
+
+    .summary-card {
+      background: var(--summary-bg);
+      border: 1px solid var(--summary-border);
+      border-radius: 12px; padding: 16px 20px; flex-shrink: 0;
+    }
+    .summary-inner { display: flex; align-items: flex-start; gap: 12px; }
+    .summary-ok { font-weight: 600; font-size: 13px; color: var(--cl-success); }
+    .summary-details { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+    .api-toggle-btn {
+      font-size: 12px; color: #388bfd;
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; cursor: pointer;
+      transition: color 0.15s;
+    }
+    .api-toggle-btn:hover { color: #79c0ff; }
+
+    .error-banner {
+      font-size: 13px; color: #ff7b72;
+      background: rgba(248,81,73,0.1);
+      border: 1px solid rgba(248,81,73,0.3);
+      border-radius: 8px; padding: 8px 12px;
+    }
+    html.light .error-banner { color: #cf222e; }
+
+    input[type="checkbox"] { width: 15px; height: 15px; accent-color: #388bfd; cursor: pointer; flex-shrink: 0; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 8px; }
+
+    /* Cost estimate chip */
+    .cost-chip {
+      font-size: 11px;
+      background: rgba(210,168,255,0.08);
+      border: 1px solid rgba(210,168,255,0.2);
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: var(--cl-ai);
+      line-height: 1.5;
+    }
+    html.light .cost-chip { background: rgba(130,80,223,0.06); border-color: rgba(130,80,223,0.2); }
+    .cost-chip strong { font-weight: 600; }
+    .cost-chip .cost-table { margin-top: 5px; display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; }
+    .cost-chip .ct-row { display: contents; }
+    .cost-chip .ct-label { color: var(--text-muted); font-size: 10px; }
+    .cost-chip .ct-val   { font-size: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- SETUP OVERLAY -->
+<div id="setup-overlay">
+  <div class="card setup-card fade-in">
+
+    <div class="setup-head">
+      <span class="emoji">📚</span>
+      <h1>SDE Vault</h1>
+      <p>Moodle → Obsidian Downloader</p>
+    </div>
+
+    <div class="setup-form">
+      <div>
+        <label class="label" for="s-email">Skole-email</label>
+        <input id="s-email" type="email" placeholder="madsb@otg.dk" autocomplete="email">
+      </div>
+      <div>
+        <label class="label" for="s-pass">Kodeord</label>
+        <input id="s-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <!-- API keys -->
+      <div>
+        <button id="s-api-toggle" class="api-toggle-btn">
+          <svg id="s-api-chevron" style="width:11px;height:11px;flex-shrink:0;transition:transform 0.2s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+          </svg>
+          API-nøgler til AI-funktioner
+          <span style="color:var(--text-dim);">(valgfri)</span>
+        </button>
+        <div id="s-api-field" class="hidden" style="margin-top:10px;">
+          <span class="api-section-label">✦ Udfyld den eller dem du vil bruge</span>
+          <div class="api-key-grid" style="margin-top:8px;">
+            <div class="api-key-row">
+              <div class="api-key-name">
+                Claude (Anthropic)
+                <span id="badge-anthropic" class="api-key-badge badge-unset">ikke sat</span>
+              </div>
+              <input id="s-anthropic" type="password" placeholder="sk-ant-api03-…">
+            </div>
+            <div class="api-key-row">
+              <div class="api-key-name">
+                ChatGPT (OpenAI)
+                <span id="badge-openai" class="api-key-badge badge-unset">ikke sat</span>
+              </div>
+              <input id="s-openai" type="password" placeholder="sk-…">
+            </div>
+            <div class="api-key-row">
+              <div class="api-key-name">
+                Gemini (Google)
+                <span id="badge-gemini" class="api-key-badge badge-unset">ikke sat</span>
+              </div>
+              <input id="s-gemini" type="password" placeholder="AIza…">
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--text-dim);margin-top:8px;">
+            Lad felter tomme for at beholde eksisterende nøgler.
+          </p>
+        </div>
+      </div>
+
+      <div id="s-error" class="error-banner hidden"></div>
+      <button id="s-save" class="btn-primary" style="margin-top:4px;">Gem &amp; åbn app →</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- MAIN APP -->
+<div id="update-banner" style="display:none;align-items:center;justify-content:center;gap:10px;padding:8px 16px;background:rgba(35,134,54,0.15);border-bottom:1px solid rgba(35,134,54,0.3);font-size:13px;">
+  <span>🎉 En ny version er tilgængelig:</span>
+  <strong id="update-version"></strong>
+  <a id="update-link" href="#" target="_blank" style="color:var(--cl-success);font-weight:600;text-decoration:underline;">Download</a>
+</div>
+
+<div id="main-app" class="hidden">
+
+  <header class="app-header">
+    <div class="header-left">
+      <span style="font-size:18px;">📚</span>
+      <span style="font-weight:700;color:var(--text-strong);font-size:15px;">SDE Vault</span>
+      <span style="font-size:12px;color:var(--text-muted);">Moodle → Obsidian</span>
+    </div>
+    <div class="header-right">
+      <div class="status-pill">
+        <span id="h-dot" class="status-dot"></span>
+        <span id="h-status">Klar</span>
+      </div>
+      <button id="theme-toggle" class="btn-icon" title="Skift tema" style="padding:7px;">
+        <svg id="theme-icon" style="width:15px;height:15px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
+      </button>
+      <button id="h-settings" class="btn-text">
+        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        Indstillinger
+      </button>
+    </div>
+  </header>
+
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- Subject -->
+      <div>
+        <label class="label" for="subject">Fag</label>
+        <div class="subject-row">
+          <input id="subject" type="text" list="course-list" placeholder="f.eks. Fysik A" style="flex:1;">
+          <datalist id="course-list"></datalist>
+          <button id="load-courses" class="btn-icon" title="Hent kursusliste" style="padding:8px;">
+            <svg id="load-icon" style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </button>
+        </div>
+        <p class="hint">Skriv faget eller klik ↺ for forslag</p>
+      </div>
+
+      <!-- All courses toggle -->
+      <div class="toggle-row">
+        <div>
+          <div style="font-size:13px;">Alle kurser</div>
+          <div class="sub">Download hele kontoen på én gang</div>
+        </div>
+        <div class="toggle-track" data-for="opt-all" onclick="toggleSwitch(this)">
+          <div class="toggle-thumb"></div>
+          <input type="checkbox" id="opt-all" style="display:none;">
+        </div>
+      </div>
+
+      <!-- Topic -->
+      <div>
+        <label class="label" for="topic">Emne</label>
+        <label class="checkbox-row">
+          <input id="all-topics" type="checkbox" checked>
+          <span style="font-size:13px;">Alle emner</span>
+        </label>
+        <input id="topic" type="text" placeholder="f.eks. Energi" disabled>
+      </div>
+
+      <hr class="sidebar-divider">
+
+      <!-- Options -->
+      <div>
+        <span class="label">Indstillinger</span>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13px;">Quiz-noter</div>
+              <div class="sub">Gem spørgsmål fra quizzer</div>
+            </div>
+            <div class="toggle-track" data-for="opt-quiz" onclick="toggleSwitch(this)">
+              <div class="toggle-thumb"></div>
+              <input type="checkbox" id="opt-quiz" style="display:none;">
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13px;">Genoptag</div>
+              <div class="sub">Spring eksisterende over</div>
+            </div>
+            <div class="toggle-track" data-for="opt-resume" onclick="toggleSwitch(this)">
+              <div class="toggle-thumb"></div>
+              <input type="checkbox" id="opt-resume" style="display:none;">
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13px;">Synkroniser</div>
+              <div class="sub">Hent kun ændret indhold</div>
+            </div>
+            <div class="toggle-track" data-for="opt-sync" onclick="toggleSwitch(this)">
+              <div class="toggle-thumb"></div>
+              <input type="checkbox" id="opt-sync" style="display:none;">
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13px;">Universel eksport</div>
+              <div class="sub">Ingen .obsidian-mappe</div>
+            </div>
+            <div class="toggle-track" data-for="opt-no-obsidian" onclick="toggleSwitch(this)">
+              <div class="toggle-thumb"></div>
+              <input type="checkbox" id="opt-no-obsidian" style="display:none;">
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);background:rgba(56,139,253,0.05);border:1px solid rgba(56,139,253,0.15);border-radius:6px;padding:6px 8px;line-height:1.5;">
+            Ren Markdown — virker med Logseq, Typora, VS&nbsp;Code og andre apps.
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13px;">Vis browser</div>
+              <div class="sub">Åbn Chrome-vindue</div>
+            </div>
+            <div class="toggle-track" data-for="opt-browser" onclick="toggleSwitch(this)">
+              <div class="toggle-thumb"></div>
+              <input type="checkbox" id="opt-browser" style="display:none;">
+            </div>
+          </div>
+          <div style="font-size:11px;color:#e3b341;background:rgba(227,179,65,0.08);border:1px solid rgba(227,179,65,0.2);border-radius:6px;padding:6px 8px;line-height:1.5;">
+            ⚠ På skolens WiFi: slå <strong>til</strong> — login-siden kræver en åben browser.
+          </div>
+
+          <!-- AI divider -->
+          <div class="ai-section-header">
+            <div class="ai-section-line"></div>
+            <span class="ai-section-label">✦ AI-funktioner</span>
+            <div class="ai-section-line"></div>
+          </div>
+
+          <!-- AI provider -->
+          <div>
+            <label class="label" for="ai-provider" style="margin-bottom:6px;">AI-udbyder</label>
+            <select id="ai-provider" onchange="updateCostEstimate()">
+              <option value="claude">Claude (Anthropic)</option>
+              <option value="openai">ChatGPT (OpenAI)</option>
+              <option value="gemini">Gemini (Google)</option>
+            </select>
+          </div>
+
+          <!-- AI model override -->
+          <div>
+            <label class="label" for="ai-model" style="margin-bottom:6px;">Model <span style="font-weight:400;text-transform:none;letter-spacing:0;">(valgfri — lad tom for standard)</span></label>
+            <input id="ai-model" type="text" placeholder="f.eks. gpt-4o, claude-sonnet-4-6">
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13px;">AI studienoter</div>
+              <div class="sub">Nøglebegreber + tjekliste</div>
+            </div>
+            <div class="toggle-track" data-for="opt-ai" onclick="toggleSwitch(this);updateCostEstimate()">
+              <div class="toggle-thumb"></div>
+              <input type="checkbox" id="opt-ai" style="display:none;">
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13px;">Flashkort</div>
+              <div class="sub">Spaced repetition</div>
+            </div>
+            <div class="toggle-track" data-for="opt-fc" onclick="toggleSwitch(this);updateCostEstimate()">
+              <div class="toggle-thumb"></div>
+              <input type="checkbox" id="opt-fc" style="display:none;">
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13px;">Prøveeksamen</div>
+              <div class="sub">AI-genereret eksamen</div>
+            </div>
+            <div class="toggle-track" data-for="opt-exam" onclick="toggleSwitch(this);updateCostEstimate()">
+              <div class="toggle-thumb"></div>
+              <input type="checkbox" id="opt-exam" style="display:none;">
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13px;">Begrebskort</div>
+              <div class="sub">Tværfaglige sammenhænge</div>
+            </div>
+            <div class="toggle-track" data-for="opt-concepts" onclick="toggleSwitch(this);updateCostEstimate()">
+              <div class="toggle-thumb"></div>
+              <input type="checkbox" id="opt-concepts" style="display:none;">
+            </div>
+          </div>
+
+          <!-- Cost estimate -->
+          <div id="cost-chip" class="cost-chip hidden">
+            <strong>Estimeret API-pris</strong>
+            <div class="cost-table" id="cost-table"></div>
+            <div style="margin-top:5px;font-size:10px;color:var(--text-dim);">
+              Ca. 14 emner · standardmodeller · faktisk pris varierer
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="flex:1;"></div>
+
+      <div class="btn-group">
+        <button id="start-btn" class="btn-primary">
+          <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+          Start download
+        </button>
+        <button id="stop-btn" class="btn-danger hidden">
+          <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor"/>
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
+          Stop
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- OUTPUT PANEL -->
+    <main class="output-panel">
+
+      <div class="card phase-stepper">
+        <div class="phase-node" id="pn-login">
+          <div class="phase-dot">🔐</div>
+          <span class="phase-label">Login</span>
+        </div>
+        <div class="phase-line" id="pl-1"></div>
+        <div class="phase-node" id="pn-fetch">
+          <div class="phase-dot">📋</div>
+          <span class="phase-label">Hent</span>
+        </div>
+        <div class="phase-line" id="pl-2"></div>
+        <div class="phase-node" id="pn-download">
+          <div class="phase-dot">⬇️</div>
+          <span class="phase-label">Download</span>
+        </div>
+        <div class="phase-line" id="pl-3"></div>
+        <div class="phase-node" id="pn-build">
+          <div class="phase-dot">🏗️</div>
+          <span class="phase-label">Vault</span>
+        </div>
+        <div class="phase-line" id="pl-4"></div>
+        <div class="phase-node" id="pn-done">
+          <div class="phase-dot">✅</div>
+          <span class="phase-label">Færdig</span>
+        </div>
+      </div>
+
+      <div class="card log-card">
+        <div class="log-header">
+          <span style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">Output</span>
+          <button id="clear-btn" class="btn-text" style="font-size:12px;">Ryd</button>
+        </div>
+        <div id="log-box" class="log-box mono">
+          <div class="log-row">
+            <span class="log-ts"></span>
+            <span class="ll-dim">Klar. Vælg et fag og klik "Start download".</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="summary" class="summary-card fade-in hidden">
+        <div class="summary-inner">
+          <span style="font-size:22px;">✅</span>
+          <div style="flex:1;min-width:0;">
+            <div class="summary-ok">Download fuldført!</div>
+            <div id="summary-details" class="summary-details"></div>
+          </div>
+          <button id="open-vault-btn" class="btn-small">Åbn mappe →</button>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+</div>
+
+
+<script>
+'use strict';
+
+function $(id) { return document.getElementById(id); }
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Theme ────────────────────────────────────────────────────────────
+const MOON_PATH = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+const SUN_PATH  = '<circle cx="12" cy="12" r="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
+
+function applyThemeIcon() {
+  const isLight = document.documentElement.classList.contains('light');
+  $('theme-icon').innerHTML = isLight ? MOON_PATH : SUN_PATH;
+}
+function toggleTheme() {
+  const html = document.documentElement;
+  if (html.classList.contains('light')) { html.classList.remove('light'); localStorage.setItem('sde-theme','dark'); }
+  else                                  { html.classList.add('light');    localStorage.setItem('sde-theme','light'); }
+  applyThemeIcon();
+}
+$('theme-toggle').addEventListener('click', toggleTheme);
+applyThemeIcon();
+
+// ── State ────────────────────────────────────────────────────────────
+let currentJobId = null, eventSource = null, currentPhaseIdx = -1;
+const PHASES    = ['login','fetch','download','build','done'];
+const PHASE_IDX = {login:0, fetch:1, download:2, build:3, ai:3, done:4};
+const PHASE_LINES = ['pl-1','pl-2','pl-3','pl-4'];
+
+// ── Cost estimation ──────────────────────────────────────────────────
+// Rough per-topic cost in USD for a ~14-topic course using default models.
+// Based on: ~4500 input tokens + ~1200 output tokens per AI call.
+// ai-notes: 1 call, flashcards: 1 call, practice-exam: 1 call.
+const COST_PER_CALL = {
+  // [input_per_M, output_per_M]  prices in USD
+  claude: [0.80,  4.00],   // claude-haiku-4-5
+  openai: [0.15,  0.60],   // gpt-4o-mini
+  gemini: [0.075, 0.30],   // gemini-2.0-flash
+};
+const DEFAULT_MODELS = {
+  claude: 'claude-haiku-4-5',
+  openai: 'gpt-4o-mini',
+  gemini: 'gemini-2.0-flash',
+};
+const TOPICS = 14;
+const INPUT_TOKENS  = 4500;
+const OUTPUT_TOKENS = 1200;
+
+function estimateCost(provider, calls) {
+  const [inp, out] = COST_PER_CALL[provider] || COST_PER_CALL.claude;
+  const perCall = (INPUT_TOKENS / 1e6) * inp + (OUTPUT_TOKENS / 1e6) * out;
+  return perCall * calls * TOPICS;
+}
+
+function fmt(usd) {
+  if (usd < 0.01) return '< $0.01';
+  return '$' + usd.toFixed(2);
+}
+
+function updateCostEstimate() {
+  const provider = $('ai-provider').value;
+  const ai    = $('opt-ai').checked;
+  const fc    = $('opt-fc').checked;
+  const exam  = $('opt-exam').checked;
+  const conc  = $('opt-concepts').checked;
+  const total = (ai?1:0) + (fc?1:0) + (exam?1:0) + (conc?0.5:0); // concept map is cheaper
+  const chip  = $('cost-chip');
+  const table = $('cost-table');
+
+  if (!ai && !fc && !exam && !conc) { chip.classList.add('hidden'); return; }
+  chip.classList.remove('hidden');
+
+  const cost = estimateCost(provider, total);
+  const model = DEFAULT_MODELS[provider] || provider;
+
+  let rows = `
+    <span class="ct-label">Udbyder</span><span class="ct-val">${model}</span>
+    <span class="ct-label">Pr. kørsel (~${TOPICS} emner)</span><span class="ct-val">${fmt(cost)}</span>
+  `;
+  // Show comparison to cheapest if not already cheapest
+  const cheapest = Math.min(...Object.keys(COST_PER_CALL).map(p => estimateCost(p, total)));
+  if (cost > cheapest * 1.5) {
+    rows += `<span class="ct-label">Billigste alternativ</span><span class="ct-val">${fmt(cheapest)} (Gemini)</span>`;
+  }
+  table.innerHTML = rows;
+}
+
+$('ai-provider').addEventListener('change', updateCostEstimate);
+
+// ── Log helpers ──────────────────────────────────────────────────────
+function logClass(line) {
+  if (line.includes('[login]'))                                               return 'll-login';
+  if (/[✗]/.test(line) || line.includes('[!]'))                              return 'll-error';
+  if (line.startsWith('✓') || / ✓/.test(line))                              return 'll-success';
+  if (line.startsWith('↓') || line.includes('Downloading'))                  return 'll-dl';
+  if (line.includes('[vault]') || line.includes('Building'))                 return 'll-vault';
+  if (line.includes('[AI') || line.includes('[flashcards]') || line.includes('Generating AI') || line.includes('[exam]')) return 'll-ai';
+  if (line.includes('[quiz]') || line.includes('[concepts]') || line.includes('[pdf]')) return 'll-ai';
+  if (line.includes('[deadlines]') || line.includes('[sync]'))               return 'll-vault';
+  if (line.includes('[+]') || line.startsWith('═') || line.startsWith('─')) return 'll-header';
+  if (line.includes('[courses]') || line.includes('[sections]'))             return 'll-login';
+  return 'll-default';
+}
+
+function appendLog(text) {
+  const box = $('log-box');
+  const now = new Date().toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const row = document.createElement('div');
+  row.className = 'log-row';
+  row.innerHTML = `<span class="log-ts">${now}</span><span class="${logClass(text)}">${escHtml(text)}</span>`;
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ── Phase ────────────────────────────────────────────────────────────
+function phaseFromLine(line) {
+  if (line.includes('[login]'))                                                                               return 'login';
+  if (line.includes('[courses]') || line.includes('[sections]') || line.includes('Course:'))                 return 'fetch';
+  if (line.includes('[section] Scraping') || line.includes('[+] Scraping') || line.includes('Downloading files')) return 'download';
+  if (line.startsWith('↓'))                                                                                  return 'download';
+  if (line.includes('[+] Building') || line.includes('[vault]') || line.includes('[deadlines]'))             return 'build';
+  if (line.includes('[+] Generating') || line.includes('[AI ') || line.includes('[flashcards]') || line.includes('[exam]') || line.includes('[quiz]') || line.includes('[concepts]')) return 'build';
+  if (line.includes('Done!'))                                                                                return 'done';
+  return null;
+}
+
+function setPhase(name) {
+  const idx = PHASE_IDX[name];
+  if (idx === undefined || idx <= currentPhaseIdx) return;
+  currentPhaseIdx = idx;
+  PHASES.forEach((p, i) => {
+    const node = $(`pn-${p}`); if (!node) return;
+    const dot = node.querySelector('.phase-dot');
+    if (i < currentPhaseIdx) {
+      node.style.opacity = '1';
+      dot.style.borderColor = '#56d364'; dot.style.backgroundColor = 'rgba(86,211,100,0.1)';
+      dot.classList.remove('phase-pulsing');
+    } else if (i === currentPhaseIdx) {
+      node.style.opacity = '1';
+      dot.style.borderColor = '#388bfd'; dot.style.backgroundColor = 'rgba(56,139,253,0.12)';
+      dot.classList.add('phase-pulsing');
+    } else {
+      node.style.opacity = '0.35';
+      dot.style.borderColor = 'var(--border)'; dot.style.backgroundColor = 'transparent';
+      dot.classList.remove('phase-pulsing');
+    }
+  });
+  PHASE_LINES.forEach((id, i) => {
+    const el = $(id); if (!el) return;
+    if (i < currentPhaseIdx - 1)        el.style.background = '#56d364';
+    else if (i === currentPhaseIdx - 1) el.style.background = 'rgba(56,139,253,0.5)';
+    else                                el.style.background = 'var(--border)';
+  });
+}
+
+function resetPhases() {
+  currentPhaseIdx = -1;
+  PHASES.forEach(p => {
+    const node = $(`pn-${p}`); if (!node) return;
+    node.style.opacity = '0.35';
+    const dot = node.querySelector('.phase-dot');
+    dot.style.borderColor = 'var(--border)'; dot.style.backgroundColor = 'transparent';
+    dot.classList.remove('phase-pulsing');
+  });
+  PHASE_LINES.forEach(id => { const el=$(id); if(el) el.style.background='var(--border)'; });
+}
+
+// ── Header status ────────────────────────────────────────────────────
+function setHeaderStatus(state, text) {
+  $('h-status').textContent = text;
+  const dot = $('h-dot');
+  const colours = { idle:'#56d364', running:'#e3b341', done:'#56d364', error:'#ff7b72' };
+  dot.style.background = colours[state] || '#56d364';
+  dot.style.animation = state === 'running' ? 'dotPulse 1.2s infinite' : '';
+}
+
+// ── Toggle switches ──────────────────────────────────────────────────
+function toggleSwitch(track) {
+  track.classList.toggle('on');
+  const cb = $(track.dataset.for);
+  if (cb) cb.checked = track.classList.contains('on');
+}
+
+// All-courses toggle disables subject field
+$('opt-all').addEventListener('change', function() {
+  $('subject').disabled = this.checked;
+  if (this.checked) { $('all-topics').checked = true; $('topic').disabled = true; $('topic').value = ''; }
+});
+
+// ── Setup ────────────────────────────────────────────────────────────
+async function checkEnv() {
+  try {
+    const r = await fetch('/api/env');
+    const d = await r.json();
+    if (d.configured) {
+      setBadges(d);
+      showApp();
+    }
+  } catch { /* stay on setup */ }
+}
+
+function setBadges(d) {
+  function badge(id, set) {
+    const el = $(id); if (!el) return;
+    el.textContent = set ? 'sat ✓' : 'ikke sat';
+    el.className = 'api-key-badge ' + (set ? 'badge-set' : 'badge-unset');
+  }
+  badge('badge-anthropic', d.has_anthropic_key);
+  badge('badge-openai',    d.has_openai_key);
+  badge('badge-gemini',    d.has_gemini_key);
+}
+
+function showApp()   { $('setup-overlay').classList.add('hidden');    $('main-app').classList.remove('hidden'); }
+function showSetup() { $('s-error').classList.add('hidden'); $('setup-overlay').classList.remove('hidden'); $('main-app').classList.add('hidden'); }
+
+$('s-api-toggle').addEventListener('click', () => {
+  const field   = $('s-api-field');
+  const chevron = $('s-api-chevron');
+  const open = field.classList.toggle('hidden');
+  chevron.style.transform = !open ? 'rotate(90deg)' : '';
+});
+
+$('s-save').addEventListener('click', async () => {
+  const email         = $('s-email').value.trim();
+  const password      = $('s-pass').value.trim();
+  const anthropicKey  = $('s-anthropic').value.trim();
+  const openaiKey     = $('s-openai').value.trim();
+  const geminiKey     = $('s-gemini').value.trim();
+  const errEl         = $('s-error');
+
+  if (!email || !password) {
+    errEl.textContent = 'Udfyld både email og kodeord.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  const btn = $('s-save');
+  btn.textContent = 'Gemmer…'; btn.disabled = true;
+  errEl.classList.add('hidden');
+
+  try {
+    const r = await fetch('/api/env', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, password, anthropic_key: anthropicKey, openai_key: openaiKey, gemini_key: geminiKey}),
+    });
+    const d = await r.json();
+    if (d.ok) { showApp(); }
+    else { errEl.textContent = d.error || 'Fejl ved gemning.'; errEl.classList.remove('hidden'); }
+  } catch {
+    errEl.textContent = 'Netværksfejl – serveren svarer ikke.';
+    errEl.classList.remove('hidden');
+  } finally {
+    btn.textContent = 'Gem & åbn app →'; btn.disabled = false;
+  }
+});
+
+$('h-settings').addEventListener('click', async () => {
+  try {
+    const r = await fetch('/api/env');
+    const d = await r.json();
+    if (d.email) $('s-email').value = d.email;
+    setBadges(d);
+    // Open API section if any key is set
+    if (d.has_anthropic_key || d.has_openai_key || d.has_gemini_key) {
+      const field = $('s-api-field');
+      if (field.classList.contains('hidden')) {
+        field.classList.remove('hidden');
+        $('s-api-chevron').style.transform = 'rotate(90deg)';
+      }
+    }
+  } catch {}
+  $('s-pass').value = '';
+  showSetup();
+});
+
+// ── Load courses ─────────────────────────────────────────────────────
+$('load-courses').addEventListener('click', async () => {
+  const btn = $('load-courses'), icon = $('load-icon');
+  btn.disabled = true; icon.classList.add('spinning');
+  $('subject').placeholder = 'Henter kurser…';
+  try {
+    const r = await fetch('/api/courses');
+    const d = await r.json();
+    const dl = $('course-list');
+    dl.innerHTML = '';
+    (d.courses || []).forEach(c => { const opt = document.createElement('option'); opt.value = c; dl.appendChild(opt); });
+    icon.innerHTML = `<polyline points="20 6 9 17 4 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"/>`;
+    setTimeout(() => { icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>`; }, 2500);
+  } catch {
+    icon.innerHTML = `<line x1="18" y1="6" x2="6" y2="18" stroke-linecap="round" stroke-width="2.5"/><line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round" stroke-width="2.5"/>`;
+    setTimeout(() => { icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>`; }, 2500);
+  } finally {
+    btn.disabled = false; icon.classList.remove('spinning');
+    $('subject').placeholder = 'f.eks. Fysik A';
+  }
+});
+
+// ── Topic toggle ─────────────────────────────────────────────────────
+$('all-topics').addEventListener('change', function () {
+  $('topic').disabled = this.checked;
+  if (this.checked) $('topic').value = '';
+});
+
+// ── Start / Stop ─────────────────────────────────────────────────────
+$('start-btn').addEventListener('click', startDownload);
+
+async function startDownload() {
+  const allCourses  = $('opt-all').checked;
+  const subject     = $('subject').value.trim();
+
+  if (!allCourses && !subject) {
+    $('subject').style.borderColor = '#ff7b72';
+    $('subject').focus();
+    setTimeout(() => { $('subject').style.borderColor = 'var(--border)'; }, 2000);
+    return;
+  }
+
+  const allTopics    = $('all-topics').checked;
+  const topic        = allTopics ? '' : $('topic').value.trim();
+  const aiNotes      = $('opt-ai').checked;
+  const flashcards   = $('opt-fc').checked;
+  const quizNotes    = $('opt-quiz').checked;
+  const practiceExam = $('opt-exam').checked;
+  const conceptMap   = $('opt-concepts').checked;
+  const resume       = $('opt-resume').checked;
+  const sync         = $('opt-sync').checked;
+  const showBrowser  = $('opt-browser').checked;
+  const noObsidian   = $('opt-no-obsidian').checked;
+  const aiProvider   = $('ai-provider').value;
+  const aiModel      = $('ai-model').value.trim();
+
+  $('log-box').innerHTML = '';
+  $('summary').classList.add('hidden');
+  resetPhases();
+  setHeaderStatus('running','Kører…');
+  $('start-btn').classList.add('hidden');
+  $('stop-btn').classList.remove('hidden');
+
+  try {
+    const r = await fetch('/api/start', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        subject, all_courses: allCourses, topic,
+        ai_notes: aiNotes, flashcards, quiz_notes: quizNotes,
+        practice_exam: practiceExam, concept_map: conceptMap,
+        headless: !showBrowser, resume, sync,
+        no_obsidian_config: noObsidian,
+        ai_provider: aiProvider, ai_model: aiModel,
+      }),
+    });
+    const d = await r.json();
+    if (d.error) { appendLog(`[!] ${d.error}`); setHeaderStatus('error','Fejl'); resetBtns(); return; }
+    currentJobId = d.job_id;
+    listenToStream(currentJobId);
+  } catch (e) {
+    appendLog(`[!] Netværksfejl: ${e.message}`);
+    setHeaderStatus('error','Fejl'); resetBtns();
+  }
+}
+
+function listenToStream(jobId) {
+  if (eventSource) eventSource.close();
+  eventSource = new EventSource(`/api/stream/${jobId}`);
+  eventSource.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    if (data.done) {
+      eventSource.close();
+      const ok = data.status === 'done';
+      setHeaderStatus(ok ? 'done' : 'error', ok ? 'Færdig ✓' : 'Fejl');
+      if (ok) { setPhase('done'); showSummary(); }
+      resetBtns(); return;
+    }
+    if (data.line !== undefined) {
+      appendLog(data.line);
+      const ph = phaseFromLine(data.line);
+      if (ph) setPhase(ph);
+    }
+  };
+  eventSource.onerror = function() {
+    if (eventSource.readyState === EventSource.CLOSED) return;
+    eventSource.close();
+    setHeaderStatus('error','Forbindelsesfejl'); resetBtns();
+  };
+}
+
+$('stop-btn').addEventListener('click', async () => {
+  if (!currentJobId) return;
+  await fetch(`/api/stop/${currentJobId}`, {method:'POST'}).catch(()=>{});
+  if (eventSource) eventSource.close();
+  appendLog('[!] Stoppet af bruger.');
+  setHeaderStatus('error','Stoppet'); resetBtns();
+});
+
+function resetBtns() {
+  $('start-btn').classList.remove('hidden');
+  $('stop-btn').classList.add('hidden');
+}
+
+// ── Summary ──────────────────────────────────────────────────────────
+function showSummary() {
+  const spans = $('log-box').querySelectorAll('.log-row span:last-child');
+  let topics='', files='', vault='';
+  spans.forEach(el => {
+    const l = el.textContent; let m;
+    if ((m = l.match(/Topics\s*:\s*(\d+)/i)))  topics = m[1];
+    if ((m = l.match(/Files\s*:\s*(\d+)/i)))   files  = m[1];
+    if ((m = l.match(/Vault\s*:\s*(.+)/i)))    vault  = m[1].trim();
+  });
+  const parts = [];
+  if (topics) parts.push(`${topics} emner`);
+  if (files)  parts.push(`${files} filer`);
+  if (vault)  parts.push(vault);
+  $('summary-details').textContent = parts.join(' · ') || 'Vault opdateret.';
+  $('summary').classList.remove('hidden');
+}
+
+$('open-vault-btn').addEventListener('click', () => { fetch('/api/open-vault').catch(()=>{}); });
+$('clear-btn').addEventListener('click', () => {
+  $('log-box').innerHTML = '<div class="log-row"><span class="log-ts"></span><span class="ll-dim">Ryddet.</span></div>';
+  $('summary').classList.add('hidden');
+});
+
+// ── Boot ─────────────────────────────────────────────────────────────
+checkEnv();
+
+// ── Update check ──────────────────────────────────────────────────────
+(async () => {
+  try {
+    const r = await fetch('/api/version');
+    const d = await r.json();
+    if (d.has_update && d.latest && d.update_url) {
+      const banner = document.getElementById('update-banner');
+      document.getElementById('update-version').textContent = d.latest;
+      document.getElementById('update-link').href = d.update_url;
+      banner.style.display = 'flex';
+    }
+  } catch (_) {}
+})();
+</script>
+</body>
+</html>

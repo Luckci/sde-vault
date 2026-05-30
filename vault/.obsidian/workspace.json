@@ -1,0 +1,220 @@
+{
+  "main": {
+    "id": "19314328465d7a55",
+    "type": "split",
+    "children": [
+      {
+        "id": "57add4917d01a9e2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "417e50286c33e73e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Home.md",
+                "mode": "preview",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Home"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1d7c74522d8cca37",
+    "type": "split",
+    "children": [
+      {
+        "id": "ea349aa788d5676e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e28fb331041012bf",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "d63a021efa7396d6",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "8c7640020b378b93",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "22385721a36e93ba",
+    "type": "split",
+    "children": [
+      {
+        "id": "8bafa7de4dfc5fc8",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "279bae08104f9d1a",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "80c9555c72dbb4e6",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "ff665e4cc4f81573",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "f7fddd5fec1689af",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "e0a17fee2849a790",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "417e50286c33e73e",
+  "lastOpenFiles": [
+    "Fysik_A/📋 Eksamensforberedelse.md",
+    "Fysik_A/Kort_introduktion_til_faget/Kort introduktion til faget.md",
+    "Fysik_A/_Index.md",
+    "Home.md",
+    "Fysik_A/Stroemkilder_og_SO4/Strømkilder og SO4.md",
+    "Fysik_A/Atomfysik/Atomfysik.md",
+    "Fysik_A/Eksamenstraening/Eksamenstræning.md",
+    "__pycache__/sde_downloader.cpython-310.pyc.136742631858192",
+    "sde_downloader.py.tmp.32580.54eb0c71847b",
+    "sde_downloader.py.tmp.32580.625f9b1f88cd",
+    "sde_downloader.py.tmp.32580.ff97c708ff0a",
+    "sde_downloader.py.tmp.32580.51b2726b4a64",
+    "sde_downloader.py.tmp.32580.479e5d12ba2c",
+    "Kemi_B/Molekyler_(kovalent_binding)/Molekyler Opgaver 1-6 2025.pdf",
+    "Kemi_B/Molekyler_(kovalent_binding)/Molekyler Opgave 1-6.md",
+    "Kemi_B/Molekyler_(kovalent_binding)/Molekyler (kovalent binding).md",
+    "sde_downloader.py.tmp.32580.4abbf343634c",
+    "Kemi_B/Grundstoffer_og_det_periodiske_system/Grundstoffer og det periodiske system.md",
+    "Kemi_B/_Index.md",
+    "Kemi_B/📋 Eksamensforberedelse.md",
+    "Untitled.base",
+    "2026-05-26.md",
+    "Kemi_B/Grundstoffer_og_det_periodiske_system/Opgaver Atomets opbygning.md",
+    "Kemi_B/Grundstoffer_og_det_periodiske_system/~$bejdsspørgsmål til atomets opbygning 2021 (2).docx",
+    "Kemi_B/Kort_introduktion_til_faget/Kort introduktion til faget.md",
+    "Kemi_B/Fagets_materialesamling/Fagets materialesamling.md",
+    "Fysik_A/Arbejde_og_mekanisk_energi/FRIVILIG afleveringsmappe - så man er sikker på man har gemt sit dokument.md",
+    "Fysik_A/Kinematik/3 - Fredag 05 12-25.md",
+    "Fysik_A/Kinematik/Kinematik.md",
+    "Kemi_B/Organisk_kemi/Organisk kemi.md",
+    "Kemi_B/Maengdeberegninger_2025/Mængdeberegninger 2025.md",
+    "Fysik_A/Atomfysik/_Notes.md",
+    "Fysik_A/Det_skraa_kast/Det skrå kast.md",
+    "Fysik_A/Eksamenstraening/_Notes.md"
+  ]
+}

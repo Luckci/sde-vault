@@ -1,0 +1,15 @@
+selenium>=4.0.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+markdownify>=0.11.6
+html2text>=2020.1.16
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+pyautogui
+anthropic
+flask>=3.0.0
+pypdf>=4.0.0
+tqdm>=4.66.0
+openai>=1.0.0
+google-genai>=0.7.0
+
